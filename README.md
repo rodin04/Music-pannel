@@ -13,6 +13,8 @@ An automated smart-home music system that detects when someone enters the room v
 </p>
 
 ## ✨ Features
-- **Tailscale Integration:** Secure, seamless remote access to control and send requests to your music panel from anywhere in your network.
-- **Smart Pi 5 Backend:** Powered by a Raspberry Pi 5 for fast stream processing, smart sensor triggers, and local audio management.
-- **Automated & Manual Control:** Trigger music playback seamlessly via web interface, local Python GUI, or door sensor automation.
+- **Tailscale Control:** Control your music safely from anywhere using the Tailscale network.
+- **ESP32 Sensor Integration:** Detects when someone walks in or out and sends requests to the server automatically.
+- **Auto Play/Stop:** Music turns on when you enter the room and turns off when you leave.
+- **Raspberry Pi 5 Powered:** Runs fast and smooth on a Pi 5 to manage your songs and sensors.
+- **Easy Web & App Control:** Play music via the web browser or local app.
