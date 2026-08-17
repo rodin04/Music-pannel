@@ -3,8 +3,9 @@ An automated smart-home music system that detects when someone enters the room v
 
 ---
 
-### Einblicke in das Projekt
+### Einblicke
 
-![Musik Panel 1](musik-panel-1.png)
-
-![Musik Panel 2](musik-panel-2.png)
+<p>
+  <img src="musik-panel-1.png" width="400" alt="Musik Panel 1" style="margin-right: 10px;" />
+  <img src="musik-panel-2.png" width="400" alt="Musik Panel 2" />
+</p>
