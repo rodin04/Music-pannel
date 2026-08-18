@@ -17,4 +17,5 @@ An automated smart-home music system that detects when someone enters the room v
 - **ESP32 Sensor Integration:** Detects when someone walks in or out and sends requests to the server automatically.
 - **Auto Play/Stop:** Music turns on when you enter the room and turns off when you leave.
 - **Raspberry Pi 5 Powered:** Runs fast and smooth on a Pi 5 to manage your songs and sensors.
+- **YouTube Downloader:** Easily convert and download music directly from YouTube links.
 - **Easy Web & App Control:** Play music via the web browser or local app.
