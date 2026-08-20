@@ -28,3 +28,9 @@ An automated smart-home music system that detects when someone enters the room v
 - **Raspberry Pi 5 Powered:** Runs fast and smooth on a Pi 5 to manage your songs and sensors.
 - **YouTube Downloader:** Easily convert and download music directly from YouTube links.
 - **Easy Web & App Control:** Play music via the web browser or local app.
+
+
+## 🛠️ Hardware
+- Controller: ESP32 DevKit V1
+- Sensor: HC-SR04P
+- Powerbank
