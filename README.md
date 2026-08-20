@@ -45,7 +45,7 @@ An automated smart-home music system that detects when someone enters the room v
 
 ## 🔌 Pin Connections
 
-The ESP32 acts as the brain of the project. Below is the wiring diagram for the sound sensor.
+The ESP32 acts as the core controller, playing and stopping music based on movement detection. Below is the wiring diagram for the sensor.
 
 ### 1. Sound Sensor (KY-037/038) to ESP32
 | Sound Sensor Pin | ESP32 Pin | Description |
