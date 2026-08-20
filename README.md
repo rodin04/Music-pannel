@@ -40,3 +40,21 @@ An automated smart-home music system that detects when someone enters the room v
 | **ESP32 DevKit V1** | <img src="esp32.png" alt="ESP32" width="150"> | [Buy here](https://www.amazon.de/dp/B0DHRV7784) |
 | **HC-SR04P sensor** | <img src="HC-SR04P.png" alt="HC-SR04P" width="150"> | [Buy here](https://www.amazon.com/dp/B0GZNRW6XR) |
 | **Powerbank** | <img src="powerbank.png" alt="Powerbank" width="150"> | [Buy here](https://www.amazon.de/dp/B0BHZ6RY6C) |
+
+
+
+## 🔌 Pin Connections
+
+The ESP32 acts as the brain of the project. Below is the wiring diagram for the sound sensor.
+
+### 1. Sound Sensor (KY-037/038) to ESP32
+| Sound Sensor Pin | ESP32 Pin | Description |
+| :--- | :--- | :--- |
+| **VCC** | 3.3V / VIN | Power Supply |
+| **GND** | GND | Ground |
+| **AO** | GPIO 2 | Analog Output |
+| **DO** | GPIO 4 | Digital Output |
+
+
+
+
