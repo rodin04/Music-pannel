@@ -35,6 +35,7 @@ An automated smart-home music system that detects when someone enters the room v
 - Sensor: HC-SR04P
 - Powerbank
 
+
 | Component | Image | Recommended Link |
 | :--- | :---: | :--- |
 | **ESP32 DevKit V1** | <img src="esp32.png" alt="ESP32" width="150"> | [Buy here](https://www.amazon.de/dp/B0DHRV7784) |
