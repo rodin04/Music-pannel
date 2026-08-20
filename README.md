@@ -13,6 +13,14 @@ An automated smart-home music system that detects when someone enters the room v
   
 </p>
 
+### Web interface 
+
+<p>
+  <img src="musik-panel-3.png" width="400" alt="Musik Panel 1" style="margin-right: 10px;" />
+</p>
+
+
+
 ## ✨ Features
 - **Tailscale Control:** Control your music safely from anywhere using the Tailscale network.
 - **ESP32 Sensor Integration:** Detects when someone walks in or out and sends requests to the server automatically.
