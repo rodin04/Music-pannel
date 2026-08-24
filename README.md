@@ -30,6 +30,14 @@ An automated smart-home music system that detects when someone enters the room v
 - **Easy Web & App Control:** Play music via the web browser or local app.
 
 
+## 📁 File Structure
+
+- **backend.py** — Main Flask server, API routes, and Pygame music player backend
+- **start.sh** — Shell script to easily start, stop, or manage the application process
+- **frontend/templates/index.html** — Web interface for controlling playlists and settings
+- **playlists/** — Directory containing your audio folders and downloaded music files
+
+
 ## 🛠️ Hardware
 - Controller: ESP32 DevKit V1
 - Sensor: HC-SR04P
@@ -54,6 +62,9 @@ The ESP32 acts as the core controller, playing and stopping music based on movem
 | **GND** | GND | Ground |
 | **AO** | GPIO 2 | Analog Output |
 | **DO** | GPIO 4 | Digital Output |
+
+
+## 🔍 Code Insights & Logic
 
 
 
