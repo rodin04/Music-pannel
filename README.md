@@ -117,3 +117,15 @@ The web interface handles user interactions, drag-and-drop playlist sorting, and
 * **SortableJS Integration:** Allows users to reorder songs inside a playlist via drag-and-drop using the handle (`☰`).
 * **Instant Sync:** Automatically sends the new song order to the backend via a POST request (`/reorder`) on drop.
 * **Live Status Loop:** Continuously polls the server every 2 seconds (`setInterval`) to update playback status and volume sliders.
+
+
+#### 5. Management Script (start.sh)
+A helper shell script to easily launch, restart, or safely kill the Flask background process.
+
+<p>
+  <img src="logic-6.png" width="600" alt="Start Script Logic" />
+</p>
+
+* **Port Check:** Automatically detects if an old instance is already running on port 5000 using `lsof`.
+* **Interactive Prompt:** Asks if you want to restart or kill the existing process cleanly.
+* **Background Execution:** Uses `nohup` and `python3` to run the backend smoothly in the background, logging everything to `backend.log`.
