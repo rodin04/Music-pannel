@@ -106,3 +106,14 @@ Manages manual playback control directly from the web interface or app.
 * **Pygame Mixer:** Loads and plays the song smoothly using the Pygame library.
 * **Toggle Behavior:** Clicking the same song again will instantly stop the playback.
 
+
+#### 4. Frontend & UI Logic (index.html)
+The web interface handles user interactions, drag-and-drop playlist sorting, and live status updates.
+
+<p>
+  <img src="logic-5.png" width="600" alt="Frontend Drag and Drop Logic" />
+</p>
+
+* **SortableJS Integration:** Allows users to reorder songs inside a playlist via drag-and-drop using the handle (`☰`).
+* **Instant Sync:** Automatically sends the new song order to the backend via a POST request (`/reorder`) on drop.
+* **Live Status Loop:** Continuously polls the server every 2 seconds (`setInterval`) to update playback status and volume sliders.
