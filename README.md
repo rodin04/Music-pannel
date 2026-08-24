@@ -106,6 +106,3 @@ Manages manual playback control directly from the web interface or app.
 * **Pygame Mixer:** Loads and plays the song smoothly using the Pygame library.
 * **Toggle Behavior:** Clicking the same song again will instantly stop the playback.
 
-
-
-
