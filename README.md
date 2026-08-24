@@ -66,6 +66,45 @@ The ESP32 acts as the core controller, playing and stopping music based on movem
 
 ## 🔍 Code Insights & Logic
 
+### backend.py
+
+#### 1. Sensor Trigger Logic (ESP32 Control)
+The core logic that handles requests from the ESP32 and toggles music playback on or off.
+
+<p>
+  <img src="logic-1.png" width="450" alt="Sensor Logic Part 1" style="margin-right: 10px;" />
+  <img src="logic-2.png" width="450" alt="Sensor Logic Part 2" />
+</p>
+
+* **Check Status:** Verifies if the sensor feature is enabled in the web settings.
+* **Toggle Play/Stop:** If music is already playing, it stops. If it's stopped, it plays a random or selected track.
+* **Response:** Sends an HTTP response back to the ESP32.
+
+---
+
+#### 2. YouTube Downloader Route
+Allows you to paste any YouTube link and save it directly as an MP3 file into a specific playlist.
+
+<p>
+  <img src="logic-3.png" width="600" alt="Download Logic" />
+</p>
+
+* **yt-dlp Integration:** Automatically extracts the best audio format from the given URL.
+* **FFmpeg Postprocessor:** Converts and saves the file directly as a high-quality 320kbps MP3.
+* **Storage:** Automatically stores the downloaded song in the selected playlist folder.
+
+---
+
+#### 3. Play Song Route
+Manages manual playback control directly from the web interface or app.
+
+<p>
+  <img src="logic-4.png" width="600" alt="Play Song Route" />
+</p>
+
+* **File Verification:** Checks if the requested audio file actually exists on the system.
+* **Pygame Mixer:** Loads and plays the song smoothly using the Pygame library.
+* **Toggle Behavior:** Clicking the same song again will instantly stop the playback.
 
 
 
