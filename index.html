@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Musik Home Panel</title>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --panel-bg: rgba(30, 41, 59, 0.7);
+            --accent-color: #38bdf8;
+            --danger-color: #ef4444;
+            --text-color: #f8fafc;
+            --song-playing: #16a34a;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-color); padding: 15px; display: flex; flex-direction: column; align-items: center; }
+        .container { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 15px; }
+
+        .panel { background: var(--panel-bg); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.5); }
+        h3 { margin-bottom: 10px; font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; color: #94a3b8; }
+
+        .status-box { text-align: center; background: linear-gradient(135deg, #172554, #0f172a); }
+        #current-song-title { font-weight: bold; font-size: 1.2rem; margin: 5px 0; color: #38bdf8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .vol-control { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+        .vol-control input { flex: 1; accent-color: var(--accent-color); }
+
+        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(255,255,255,0.05); margin-bottom: 6px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+        .list-item:hover { background: rgba(255,255,255,0.1); }
+        .list-item.active { border-left: 4px solid var(--accent-color); background: rgba(56, 189, 248, 0.2); }
+        .list-item.playing { background: var(--song-playing) !important; }
+
+        .drag-handle { cursor: grab; padding-right: 8px; color: var(--accent-color); user-select: none; }
+        .drag-handle:active { cursor: grabbing; }
+        .sortable-ghost { opacity: 0.4; background: rgba(56, 189, 248, 0.4) !important; }
+
+        .btn { background: var(--accent-color); color: #0f172a; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9rem; }
+        .btn-danger { background: var(--danger-color); color: white; }
+        .btn-sm { padding: 4px 8px; font-size: 0.8rem; }
+        .input-group { display: flex; gap: 8px; margin-top: 5px; }
+        .input-group input, .input-group select { flex: 1; padding: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.2); color: white; }
+
+        select option { background: #1e293b; color: white; }
+
+        .switch-container { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+        .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #475569; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--song-playing); }
+        input:checked + .slider:before { transform: translateX(24px); }
+
+        #song-list { max-height: 350px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <div class="panel status-box">
+            <h3>LIVE STATUS</h3>
+            <div id="current-status">Stopped</div>
+            <div id="current-song-title">- Kein Song -</div>
+            <div class="vol-control">
+                <span>🔈</span>
+                <input type="range" id="vol-slider" min="0" max="1" step="0.05" value="0.5" oninput="setVolume(this.value)">
+                <span>🔊</span>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h3>SENSOR EINSTELLUNGEN</h3>
+            <div class="switch-container">
+                <span>Sensor-Erkennung aktiv:</span>
+                <label class="switch">
+                    <input type="checkbox" id="sensor-toggle" onchange="saveSensorSettings()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="input-group" style="flex-direction: column; gap: 10px;">
+                <div>
+                    <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 3px;">Sensor Playlist:</label>
+                    <select id="sensor-playlist-select" onchange="updateSensorSongDropdown(); saveSensorSettings();">
+                        <option value="">-- Keine Playlist --</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 3px;">Aktion / Lied:</label>
+                    <select id="sensor-song-select" onchange="saveSensorSettings()">
+                        <option value="random">🔀 Zufälliges Lied (Random)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h3>PLAYLIST MANAGEMENT</h3>
+            <div class="input-group">
+                <input type="text" id="new-playlist-name" placeholder="Neue Playlist Name...">
+                <button class="btn" onclick="createPlaylist()">Erstellen</button>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h3>YOUTUBE DOWNLOAD</h3>
+            <div class="input-group" style="flex-direction: column;">
+                <input type="text" id="dl-url" placeholder="YouTube URL hier einfügen...">
+                <button class="btn" onclick="downloadSong()">In aktive Playlist laden</button>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h3>PLAYLISTS</h3>
+            <div id="playlist-list"></div>
+        </div>
+
+        <div class="panel">
+            <h3>SONGS IN <span id="active-playlist-title">-</span></h3>
+            <div id="song-list">Wähle eine Playlist...</div>
+        </div>
+
+    </div>
+
+    <script>
+        let allData = {};
+        let activePlaylist = "";
+        let currentRunningSong = "";
+        let currentRunningPlaylist = "";
+        let sensorConfig = { enabled: true, playlist: "", song: "random" };
+
+        async function loadData() {
+            const res = await fetch('/playlists');
+            if (res.status === 200) {
+                const data = await res.json();
+                allData = data.playlists || {};
+                renderPlaylists();
+                updateSensorDropdowns();
+                if (activePlaylist) renderSongs();
+            }
+            await loadSensorSettings();
+            updateStatus();
+        }
+
+        async function loadSensorSettings() {
+            try {
+                const res = await fetch('/get_sensor_settings');
+                if (res.status === 200) {
+                    sensorConfig = await res.json();
+
+                    document.getElementById('sensor-toggle').checked = sensorConfig.enabled;
+                    document.getElementById('sensor-playlist-select').value = sensorConfig.playlist;
+
+                    updateSensorSongDropdown();
+
+                    document.getElementById('sensor-song-select').value = sensorConfig.song;
+                }
+            } catch (error) {
+                console.error("Fehler beim Laden der Sensor-Einstellungen:", error);
+            }
+        }
+
+        async function saveSensorSettings() {
+            const enabled = document.getElementById('sensor-toggle').checked;
+            const playlist = document.getElementById('sensor-playlist-select').value;
+            const song = document.getElementById('sensor-song-select').value;
+
+            sensorConfig = { enabled, playlist, song };
+
+            try {
+                await fetch('/set_sensor_settings', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(sensorConfig)
+                });
+            } catch (error) {
+                console.error("Fehler beim Speichern der Sensor-Einstellungen:", error);
+            }
+        }
+
+        function updateSensorDropdowns() {
+            const selectPlaylist = document.getElementById('sensor-playlist-select');
+            const currentVal = selectPlaylist.value;
+
+            selectPlaylist.innerHTML = '<option value="">-- Keine Playlist --</option>';
+
+            Object.keys(allData).forEach(pl => {
+                const opt = document.createElement('option');
+                opt.value = pl;
+                opt.innerText = pl;
+                selectPlaylist.appendChild(opt);
+            });
+
+            if (allData[currentVal]) {
+                selectPlaylist.value = currentVal;
+            }
+        }
+
+        function updateSensorSongDropdown() {
+            const selectPlaylist = document.getElementById('sensor-playlist-select').value;
+            const selectSong = document.getElementById('sensor-song-select');
+            const prevSongValue = selectSong.value;
+
+            selectSong.innerHTML = '<option value="random">🔀 Zufälliges Lied (Random)</option>';
+
+            if (selectPlaylist && allData[selectPlaylist]) {
+                allData[selectPlaylist].forEach(song => {
+                    const opt = document.createElement('option');
+                    opt.value = song;
+                    opt.innerText = song;
+                    selectSong.appendChild(opt);
+                });
+            }
+
+            const optionsArray = Array.from(selectSong.options).map(o => o.value);
+            if (optionsArray.includes(prevSongValue)) {
+                selectSong.value = prevSongValue;
+            } else {
+                selectSong.value = "random";
+            }
+        }
+
+        function renderPlaylists() {
+            const container = document.getElementById('playlist-list');
+            container.innerHTML = "";
+            Object.keys(allData).forEach(pl => {
+                const div = document.createElement('div');
+                div.className = `list-item ${pl === activePlaylist ? 'active' : ''}`;
+                div.onclick = () => selectPlaylist(pl);
+                div.innerHTML = `
+                    <span>📁 ${pl}</span>
+                    <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deletePlaylist('${pl}')">🗑️</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function selectPlaylist(name) {
+            activePlaylist = name;
+            document.getElementById('active-playlist-title').innerText = name;
+            renderPlaylists();
+            renderSongs();
+        }
+
+        function renderSongs() {
+            const container = document.getElementById('song-list');
+            container.innerHTML = "";
+            const songs = allData[activePlaylist] || [];
+            if(songs.length === 0) {
+                container.innerHTML = "Keine Songs vorhanden.";
+                return;
+            }
+            songs.forEach(song => {
+                const div = document.createElement('div');
+                const isPlaying = (song === currentRunningSong && activePlaylist === currentRunningPlaylist);
+                div.className = `list-item ${isPlaying ? 'playing' : ''}`;
+
+                div.setAttribute('data-song', song);
+                div.onclick = () => playSong(activePlaylist, song);
+
+                div.innerHTML = `
+                    <div style="display: flex; align-items: center; flex: 1;">
+                        <span class="drag-handle" onclick="event.stopPropagation();">☰</span>
+                        <span>🎵 ${song}</span>
+                    </div>
+                    <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deleteSong('${activePlaylist}', '${song}')">🗑️</button>
+                `;
+                container.appendChild(div);
+            });
+
+            if (window.songSorter) { window.songSorter.destroy(); }
+
+            window.songSorter = new Sortable(container, {
+                animation: 150,
+                handle: '.drag-handle',
+                ghostClass: 'sortable-ghost',
+                onEnd: function () {
+                    saveNewOrder();
+                }
+            });
+        }
+
+        async function saveNewOrder() {
+            const container = document.getElementById('song-list');
+            const items = container.querySelectorAll('.list-item');
+            const newOrder = Array.from(items).map(item => item.getAttribute('data-song'));
+
+            if (!activePlaylist || newOrder.length === 0) return;
+
+            try {
+                const res = await fetch('/reorder', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        playlist: activePlaylist,
+                        songs: newOrder
+                    })
+                });
+
+                if (res.status === 200) {
+                    loadData();
+                } else {
+                    const errData = await res.json();
+                    alert("Fehler beim Sortieren: " + errData.error);
+                }
+            } catch (error) {
+                console.error("Netzwerkfehler:", error);
+            }
+        }
+
+        async function playSong(playlist, song) {
+            await fetch('/play', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({playlist, song})
+            });
+            setTimeout(updateStatus, 300);
+        }
+
+        async function updateStatus() {
+            const res = await fetch('/status');
+            const data = await res.json();
+            document.getElementById('current-status').innerText = data.status.toUpperCase();
+            document.getElementById('current-song-title').innerText = data.current_song ? data.current_song : "- Kein Song -";
+
+            const oldSong = currentRunningSong;
+            const oldPl = currentRunningPlaylist;
+            currentRunningSong = data.current_song;
+            currentRunningPlaylist = data.playlist;
+
+            if(oldSong !== currentRunningSong || oldPl !== currentRunningPlaylist) {
+                if (activePlaylist) renderSongs();
+            }
+
+            const volRes = await fetch('/get_volume');
+            const volData = await volRes.json();
+            document.getElementById('vol-slider').value = volData.volume;
+        }
+
+        async function setVolume(val) {
+            await fetch('/set_volume', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({volume: val})
+            });
+        }
+
+        async function createPlaylist() {
+            const name = document.getElementById('new-playlist-name').value;
+            if(!name) return;
+            await fetch('/create_playlist', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({name})
+            });
+            document.getElementById('new-playlist-name').value = "";
+            loadData();
+        }
+
+        async function deletePlaylist(playlist) {
+            if(!confirm(`Playlist "${playlist}" wirklich löschen?`)) return;
+            await fetch('/delete_playlist', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({playlist})
+            });
+            if(activePlaylist === playlist) activePlaylist = "";
+            loadData();
+        }
+
+        async function deleteSong(playlist, song) {
+            if(!confirm(`Song "${song}" löschen?`)) return;
+            await fetch('/delete_song', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({playlist, song})
+            });
+            loadData();
+        }
+
+        async function downloadSong() {
+            const url = document.getElementById('dl-url').value;
+            if(!activePlaylist) { alert("Bitte wähle zuerst eine Playlist aus!"); return; }
+            if(!url) return;
+            alert("Download gestartet! Das Panel aktualisiert sich, sobald die Konvertierung fertig ist.");
+            const res = await fetch('/download', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({url, playlist: activePlaylist})
+            });
+            document.getElementById('dl-url').value = "";
+            loadData();
+        }
+
+        setInterval(updateStatus, 2000);
+        window.onload = loadData;
+    </script>
+</body>
+</html>
